@@ -40,110 +40,49 @@ print(
 )
 
 
-days_of_mounth = { #справочник кол-ва дней в месяце
-    1: {
-        'days': 31, 
-        'name': 'январе'
-    },
-    2:  {
-        'days': 29,  
-        'name': 'феврале'
-    },
-    3:  {
-        'days': 31,  
-        'name': 'марте'
-    },
-    4:  {
-        'days': 30,  
-        'name': 'апреле'
-    },
-    5:  {
-        'days': 31,  
-        'name': 'мае'
-    },
-    6:  {
-        'days': 30,  
-        'name': 'июне'
-    },
-    7:  {
-        'days': 31,  
-        'name': 'июле'
-    },
-    8:  {
-        'days': 31,  
-        'name': 'августе'
-    },
-    9:  {
-        'days': 30,  
-        'name': 'сентябре'
-    },
-    10:  {
-        'days': 31,  
-        'name': 'октябре'
-    },
-    11:  {
-        'days': 30,  
-        'name': 'ноябре'
-    },
-    12:  {
-        'days': 31,  
-        'name': 'декабре'
-    },
+data_lenght = { #справочник длин диапазонов
+    1:  31, 
+    2:  29,  
+    3: 31,  
+    4: 30,  
+    5: 31,  
+    6: 30,  
+    7: 31,  
+    8: 31,  
+    9: 30,  
+    10: 31,  
+    11: 30,  
+    12: 31,  
+    'year': 9999,  
+    'month': 12  
 }
 
 
 date_input = input('Введите дату в формате dd.mm.yyyy: ')
 
-
 def check_data(dinput):
-    data = dinput.split('.')
+    import re
+    try:
+        data_split = list(map(int, dinput.split('.')))
+        match = re.fullmatch('\d{2}.\d{2}.\d{4}', dinput)
 
-    if len(data) != 3:
-        res_message = 'Формат даты указан не верно, либо разделитель не точка'
-        res_check = False
-    elif(not( #проверка на длинну строки
-            (len(data[0]) == 2) & 
-            (len(data[1]) == 2) & 
-            (len(data[2]) == 4)
-        )
-    ): 
-        res_message = 'Не верная длина вводимых символов'
-        res_check = False
-    elif not( #проверка, можно ли приобразовать к int
-        (data[0].isdigit()) & 
-        (data[1].isdigit()) & 
-        (data[2].isdigit())
-    ):
-        res_message = 'Формат даты указан не верно, символ не число'
-        res_check = False
-    elif not( # попадают ли в допустимые диапазоны
-        (int(data[0]) <= 31) & 
-        (int(data[0]) >= 1) & 
-        (int(data[1]) <= 12) & 
-        (int(data[1]) >= 1) & 
-        (int(data[2]) <= 9999) & 
-        (int(data[2]) >= 1)
-    ):
-        res_message = 'Не соответствует допустимому диапазону'
-        res_check = False
-    elif not( #проверка на 31, 30, 28 дней месяца (без учета високосного года)
-        int(data[0]) <= days_of_mounth[int(data[1])]['days']
-    ):
-        res_message = 'В {} {} дней, введено {}'.format(days_of_mounth[int(data[1])]['name'], days_of_mounth[int(data[1])]['days'], data[0])
-        res_check = False
-    else:
-        res_message = 'Все норм, дата в правильном формате'
-        res_check = True
-    return [res_check, res_message]
-
+        if not(
+            (data_split[0] <= data_lenght[data_split[1]]) &
+            (data_split[1] <= data_lenght['month']) &
+            (data_split[2] <= data_lenght['year']) & (match is not None)
+        ):
+            return False
+        else:
+            return True
+    except:
+        return False
 
 while True:
     res = check_data(date_input)
-    if(res[0]):
-        print(res[1])
+    if(res):
         break
     else:
-        print(res[1])
+        print("Не верный формат!")
         date_input = input('Введите дату в формате dd.mm.yyyy: ')
 
 

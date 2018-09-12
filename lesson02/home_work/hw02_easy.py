@@ -29,12 +29,11 @@ for fruit in fruits:
 fruits_one = ["яблоко", "банан", "киви", "арбуз"]
 fruits_two = ["яблоко", "абрикос", "ананас", "арбуз"]
 
+
 for fruit in fruits_two:
-    try:
+    if fruit in fruits_one:
         fruits_one.remove(fruit)
-        print('{} удален из fruits_one'.format(fruit))
-    except:
-        print('{} нет в fruits_one'.format(fruit))
+
 print('в fruits_one осталось', fruits_one)
 
 
