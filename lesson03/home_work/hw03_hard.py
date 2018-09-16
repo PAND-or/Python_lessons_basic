@@ -161,3 +161,17 @@ print('Зарплата всех работников ', int(sumpayd))
 # Подсказка:
 # Чтобы получить список больших букв русского алфавита:
 # print(list(map(chr, range(ord('А'), ord('Я')+1))))
+
+
+with open(os.path.join('data', 'fruits.txt'), 'r', encoding='UTF-8') as fruits:
+    for fruit in fruits:
+        if len(fruit) > 1:
+            if(fruit[0:1] in dict_fruit):
+                dict_fruit[fruit[0:1]].append(fruit)
+            else:
+                dict_fruit[fruit[0:1]] = [fruit]
+for label in dict_fruit:
+    file_name = 'fruits_'+label+'.txt'
+    with open(os.path.join('data', file_name), 'w', encoding='UTF-8') as f:
+        for fruit in dict_fruit[label]:
+            f.write(fruit)
