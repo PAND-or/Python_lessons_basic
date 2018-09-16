@@ -57,7 +57,7 @@ def lucky_ticket(ticket_number):
     else:
         sumone = sum(list_number[:int((lenght-1) / 2)])
         sumtwo = sum(list_number[int((lenght+1) / 2):])
-        return True if sumone == sumtwo else  False
+        return sumone == sumtwo
     
 print(lucky_ticket(123006))
 print(lucky_ticket(12321))
