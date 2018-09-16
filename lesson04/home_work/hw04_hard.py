@@ -13,6 +13,9 @@ matrix = [[1, 0, 8],
 
 # Суть сложности hard: Решите задачу в одну строку
 
+res = [[x[i] for x in matrix] for i in range(len(matrix))]
+print(res)
+
 # Задание-2:
 # Найдите наибольшее произведение пяти последовательных цифр в 1000-значном числе.
 # Выведите произведение и индекс смещения первого числа последовательных 5-ти цифр.
@@ -39,6 +42,24 @@ number = """
 05886116467109405077541002256983155200055935729725
 71636269561882670428252483600823257530420752963450"""
 
+import re
+#numbers_list = re.findall(r'\d{5}', number) #так найдет 200 чисел
+numbers_list = re.findall(r"(?=(\d{5}))", number) #не знаю как работает эта магия, но так найдет 920 чисел
+print(len(numbers_list))
+
+#print(number_list)
+max_product = 0
+index = 0
+for i in numbers_list:
+    product = 1
+    for num in i:
+        product = product * int(num)
+        if product > max_product:
+            max_product = product
+            index = number.find(i)
+print('Максимальное произведение', max_product)
+print('Индекс числа', index)
+
 
 # Задание-3 (Ферзи):
 # Известно, что на доске 8×8 можно расставить 8 ферзей так, чтобы они не били
@@ -47,3 +68,44 @@ number = """
 # Программа получает на вход восемь пар чисел,
 # каждое число от 1 до 8 — координаты 8 ферзей.
 # Если ферзи не бьют друг друга, выведите слово NO, иначе выведите YES.
+
+import random
+
+#qeens = [(random.randint(1,8), random.randint(1,8)) for _ in range(8)] #Есть теоритическая вероятность установки двух ферзей на одну клетку
+qeens = [(3, 2), (7, 4), (3, 8), (5, 7), (8, 5), (8, 3), (1, 3), (6, 1)]
+
+print(qeens)
+
+def check_mach(qeens):
+    for n, cell in enumerate(qeens):
+        lst = []
+        for i in range(8):
+            if (cell[0] - i) >= 0:
+                x1 = cell[0] - i
+            else:
+                x1 = cell[0] - i + 8
+            if (cell[1] - i) >= 0:
+                y1 = cell[1] - i
+            else:
+                y1 = cell[1] - i + 8
+
+            if (cell[0] + i) < 8:
+                x2 = cell[0] + i
+            else:
+                x2 = cell[0] + i - 8
+
+            if (cell[1] + i) < 8:
+                y2 = cell[1] + i
+            else:
+                y2 = cell[1] + i - 8
+
+            if(
+                ((cell[0], i) in qeens) or #бъем по горизонтали
+                ((i, cell[0]) in qeens) or #бъем по вертикали
+                ((x1, y1) in qeens) or #бъем по диаганали
+                ((x2, y2) in qeens) #бъем по диаганали
+            ):
+                return "YES" #есть попадание
+    return "NO"
+    
+print(check_mach(qeens))
