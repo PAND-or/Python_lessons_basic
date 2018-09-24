@@ -33,6 +33,7 @@ class Workers():
         name = str(args[0] + ' ' + args[1])
         if not(self.getWorker(name) == None):
             self.getWorker(name).earn(int(args[2]))
+            
     @property   
     def getSum(self):
         esum = 0
@@ -67,6 +68,7 @@ class Worker():
         return self.earned
 
 if __name__ == "__main__":
+    
     workers = Workers()
 
     with open(os.path.join('data', 'workers'), 'r', encoding='UTF-8') as f_workers:
@@ -81,5 +83,7 @@ if __name__ == "__main__":
             if i > 0:# пропуск первой строки
                 result = re.split(r'\W+', line)
                 workers.earning(result)
+                
+                
     print(workers.showearnlist)
     print('Зарплата всех работников ', workers.getSum)
