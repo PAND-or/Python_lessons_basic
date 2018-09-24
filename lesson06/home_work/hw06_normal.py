@@ -1,5 +1,3 @@
-__author__ = "Андрей Петров"
-
 # Задание-1:
 # Реализуйте описаную ниже задачу, используя парадигмы ООП:
 # В школе есть Классы(5А, 7Б и т.д.), в которых учатся Ученики.
@@ -23,20 +21,23 @@ class School:
         self.teachers = []
         self.classes = []
 
-    def getClassByName(self, room_name):
+    def getClass(self, room_name):
         for i in self.classes:
             if i.name == room_name:
                 return i
         return None
 
-    def getClasses(self):
+    @property
+    def listClasses(self):
         return [i.name for i in self.classes]
-
-    def getStudents(self, room_name):
-        return school.getClassByName(room_name).getStudents()
-
-    def getTeachers(self, room_name):
-        return school.getClassByName(room_name).getTeachers()
+    
+    @staticmethod
+    def getStudents(room_name):
+        return school.getClass(room_name).listStudents
+    
+    @staticmethod
+    def getTeachers(room_name):
+        return school.getClass(room_name).listTeachers
 
 
 class ClassRoom:
@@ -46,37 +47,49 @@ class ClassRoom:
         self.teachers = []
         school.classes.append(self)
     
-    def getStudents(self):
-        return [i.get_full_name() for i in self.students]
+    @property
+    def listStudents(self):
+        return [i.fullName for i in self.students]
 
-    def getTeachers(self):
-        return [i.get_full_name() for i in self.teachers]
+    @property
+    def listTeachers(self):
+        return [i.fullName for i in self.teachers]
 
     
 class People:
     def __init__(self, name, surname):
         self.name = name
         self.surname = surname
-
-    def get_full_name(self):
+    
+    @property
+    def fullName(self):
         return self.name + ' ' + self.surname
 
         
 class Student(People):
     def __init__(self, name, surname, class_room, parents):
         People.__init__(self, name, surname)
-        self.parents = [People(i[0], i[1]) for i in parents]
-        if school.getClassByName(class_room) == None:
-            self.class_room = ClassRoom(class_room)
-        else: 
-            self.class_room = school.getClassByName(class_room) 
+        self.parents = self.addParrent(parents)
+        self.class_room = self.addClass(class_room)
         self.class_room.students.append(self)
+        
+    def addClass(self, class_room):
+        if school.getClass(class_room) == None:
+            return ClassRoom(class_room)
+        else: 
+            return school.getClass(class_room) 
 
+    @staticmethod
+    def addParrent(parents):
+        return [People(i[0], i[1]) for i in parents]
+    
+    @property
     def listSubjects(self):
         return [i.courses for i in self.class_room.teachers]
     
-    def getParrents(self):
-        return [i.get_full_name() for i in self.parents]
+    @property
+    def listParrents(self):
+        return [i.fullName for i in self.parents]
 
     
 class Teacher(People):
@@ -85,14 +98,17 @@ class Teacher(People):
         self.teach_classes = []
         self.courses = courses
         self.teach_classes = teach_classes
+        self.addClass(teach_classes)
+        school.teachers.append(self)
+        
+    def addClass(self, teach_classes):
         for teach_class in teach_classes: 
-            if school.getClassByName(teach_class) == None:
+            if school.getClass(teach_class) == None:
                 ClassRoom(teach_class).teachers.append(self)
             else: 
-                school.getClassByName(teach_class).teachers.append(self)
-        school.teachers.append(self)
+                school.getClass(teach_class).teachers.append(self)
 
-
+        
 if __name__ == "__main__":
     school = School()
     
@@ -110,8 +126,8 @@ if __name__ == "__main__":
                 Teacher("Иван", "Тетерев", ["4 В"], "Труд"),
                 ]
     
-    print('Список классов школы', school.getClasses())
+    print('Список классов школы', school.listClasses)
     print('Список студентов 8Б', school.getStudents("8 Б"))
-    print('Список предметов первого студента', students[0].listSubjects())
-    print('Фио родителей первого студента', students[0].getParrents())
+    print('Список предметов первого студента', students[0].listSubjects)
+    print('Фио родителей первого студента', students[0].listParrents)
     print('Список учителей 5А класса', school.getTeachers("5 А"))
