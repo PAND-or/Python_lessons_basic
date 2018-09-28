@@ -20,10 +20,10 @@ class Workers():
     def __init__(self):
         self.list = []
         
-    def addWorker(self, data):
+    def add_worker(self, data):
         self.list.append(Worker(data))
     
-    def getWorker(self, name):
+    def get_worker(self, name):
         #print(dir(filter(lambda n: n.name == name, self.list)))
         return filter(lambda n: n.name == name, self.list)
         #for i in self.list:
@@ -33,22 +33,22 @@ class Workers():
         
     def earning(self, args):
         name = str(args[0] + ' ' + args[1])
-        if not(self.getWorker(name) == None):
-            self.getWorker(name).earn(int(args[2]))
+        if not(self.get_worker(name) == None):
+            self.get_worker(name).earn(int(args[2]))
             
     @property   
-    def getSum(self):
+    def get_sum(self):
         esum = 0
         for i in self.list:
             esum += i.earned
         return int(esum)
     
     @property    
-    def showlist(self):
+    def show_list(self):
         return [i.name for i in self.list]
     
     @property    
-    def showearnlist(self):
+    def show_earn_list(self):
         return [(i.name, i.earned ) for i in self.list]
 
     
@@ -77,7 +77,7 @@ if __name__ == "__main__":
         for i, line in enumerate(f_workers):
             if i > 0:# пропуск первой строки
                 result = re.split(r'\W+', line)
-                workers.addWorker(result)      
+                workers.add_worker(result)      
 
 
     with open(os.path.join('data', 'hours_of'), 'r', encoding='UTF-8') as f_hours_of:
@@ -87,5 +87,5 @@ if __name__ == "__main__":
                 workers.earning(result)
                 
                 
-    print(workers.showearnlist)
-    print('Зарплата всех работников ', workers.getSum)
+    print(workers.show_earn_list)
+    print('Зарплата всех работников ', workers.get_sum)

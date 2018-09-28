@@ -65,12 +65,12 @@ class Numbers():
         self.list = [i for i in range(1, 91)]
  
     @property
-    def getNumbers(self):
+    def get_numbers(self):
         number = random.choice(self.list)
-        self.deleteNumbers(number)
+        self.delete_numbers(number)
         return number
     
-    def deleteNumbers(self, number):
+    def delete_numbers(self, number):
         if number in self.list:
             self.list.remove(number)
             return True
@@ -97,25 +97,25 @@ class Cards(Numbers):
         return lines
     
     def str_lines(self, line):
-        strLine = ''
+        str_line = ''
         for i, number in enumerate(line):
             if (i == 0) & (number < 10):
-                strLine += str(number)
+                str_line += str(number)
             elif(i == 0) & (number > 10):  
-                strLine += '   ' + str(number)
-            elif len(strLine) > 25:
-                strLine += ' ' + str(number)
+                str_line += '   ' + str(number)
+            elif len(str_line) > 25:
+                str_line += ' ' + str(number)
             elif (line[i] - line[i-1]) > 10:
-                strLine += '   ' + str(number)
+                str_line += '   ' + str(number)
             else:
-                strLine += ' ' + str(number)
-        return strLine
+                str_line += ' ' + str(number)
+        return str_line
     
-    def printStrCard(self):
-        strLines = []
+    def print_str_card(self):
+        str_lines = []
         for line in self.lines:
-            strLines.append(self.str_lines(line))
-        strcard = str('--------------------------\n{}\n{}\n{}\n--------------------------\n').format(strLines[0], strLines[1], strLines[2])
+            str_lines.append(self.str_lines(line))
+        strcard = str('--------------------------\n{}\n{}\n{}\n--------------------------\n').format(str_lines[0], str_lines[1], str_lines[2])
         return strcard
 
 
@@ -125,8 +125,8 @@ if __name__ == "__main__":
     user_card = Cards()
     barrels = Numbers()
 
-    print('Карточка компьютера \n', computer_card.printStrCard())
-    print('\n Карточка Игрока \n', user_card.printStrCard())
+    print('Карточка компьютера \n', computer_card.print_str_card())
+    print('\n Карточка Игрока \n', user_card.print_str_card())
 
     while True:
         if len(user_card.list) == 0:
@@ -134,22 +134,22 @@ if __name__ == "__main__":
         elif len(computer_card.list) == 0:
             print('Game OVER Победил компьютер')
 
-        number = barrels.getNumbers
+        number = barrels.get_numbers
         print('Число на боченке {}'.format(number))
 
         inp = input('Зачеркнуть или продолжить?: Y / N: ')
         if inp == "Y":
-            if user_card.deleteNumbers(number):
+            if user_card.delete_numbers(number):
                 print('Такой номер есть в карточке!')
-                computer_card.deleteNumbers(number)
+                computer_card.delete_numbers(number)
             else:
                 print('Game OVER Такой номер есть в карточке!')
                 break
         else:
-            if user_card.deleteNumbers(number):
+            if user_card.delete_numbers(number):
                 print('Game OVER Такой номер есть в карточке!')
                 break
             else:
                 print('Верно! Такого номера нет в карточке!')
-                computer_card.deleteNumbers(number)
+                computer_card.delete_numbers(number)
         

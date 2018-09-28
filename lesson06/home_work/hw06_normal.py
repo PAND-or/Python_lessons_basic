@@ -24,7 +24,7 @@ class School:
         self.classes = []
         self.students = []
 
-    def getClass(self, room_name):
+    def get_class(self, room_name):
         for i in self.classes:
             if i.name == room_name:
                 return i
@@ -37,9 +37,9 @@ class School:
         return None
 
     def get_students_by_room(self, room_name):
-        classroom = self.getClass(room_name)
+        classroom = self.get_class(room_name)
         if not classroom == None:
-            return classroom.listStudents
+            return classroom.list_students
         else:
             return None
         
@@ -60,21 +60,21 @@ class School:
         return teacher
                 
     def add_class(self, class_room):
-        if self.getClass(class_room) == None:
+        if self.get_class(class_room) == None:
             class_obj = ClassRoom(class_room)
             self.classes.append(class_obj)
             return class_obj
         else: 
-            return self.getClass(class_room)
+            return self.get_class(class_room)
         
     @property
-    def listClasses(self):
+    def list_classes(self):
         return [i.name for i in self.classes]
 
-    def getTeachers(self, room_name):
-        classroom = self.getClass(room_name)
+    def get_teachers(self, room_name):
+        classroom = self.get_class(room_name)
         if not classroom == None:
-            return classroom.listTeachers
+            return classroom.list_teachers
         else:
             return None
 
@@ -86,11 +86,11 @@ class ClassRoom:
         self.teachers = []
     
     @property
-    def listStudents(self):
+    def list_students(self):
         return [i.full_name for i in self.students]
 
     @property
-    def listTeachers(self):
+    def list_teachers(self):
         return [i.full_name for i in self.teachers]
 
     
@@ -107,20 +107,20 @@ class People:
 class Student(People):
     def __init__(self, name, surname, class_room, parents):
         People.__init__(self, name, surname)
-        self.parents = self.addParrent(parents)
+        self.parents = self.add_parrent(parents)
         self.class_room = class_room
 
     @staticmethod
-    def addParrent(parents):
+    def add_parrent(parents):
         return [People(i[0], i[1]) for i in parents]
     
     @property
-    def listSubjects(self):
+    def list_subjects(self):
         
         return [i.courses for i in self.class_room.teachers]
     
     @property
-    def listParrents(self):
+    def list_parrents(self):
         return [i.full_name for i in self.parents]
 
     
@@ -148,8 +148,8 @@ if __name__ == "__main__":
     schooll.add_teacher("Татьяна", "Семенова", ["5 А", "4 В"], "Биология")
     schooll.add_teacher("Иван", "Тетерев", ["4 В"], "Труд")
     
-    print('Список классов школы', schooll.listClasses)
+    print('Список классов школы', schooll.list_classes)
     print('Список студентов 8Б', schooll.get_students_by_room('8 Б'))
-    print('Список предметов первого студента', schooll.get_students_by_fullname('Александр Иванов').listSubjects)
-    print('Фио родителей первого студента', schooll.get_students_by_fullname('Александр Иванов').listParrents)
-    print('Список учителей 5А класса', schooll.getTeachers("5 А"))
+    print('Список предметов первого студента', schooll.get_students_by_fullname('Александр Иванов').list_subjects)
+    print('Фио родителей первого студента', schooll.get_students_by_fullname('Александр Иванов').list_parrents)
+    print('Список учителей 5А класса', schooll.get_teachers("5 А"))
