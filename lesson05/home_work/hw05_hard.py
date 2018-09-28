@@ -74,9 +74,9 @@ def chenge_dir():
     if not arg:
         print("Необходимо указать имя директории вторым параметром")
         return
-    path = os.path.join(arg)
+    path = os.chdir(arg)
     print(path)
-    print(path_dir)
+    print(path_dir())
 
 def copy_file():
     if not arg:

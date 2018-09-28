@@ -24,10 +24,12 @@ class Workers():
         self.list.append(Worker(data))
     
     def getWorker(self, name):
-        for i in self.list:
-            if i.name == name:
-                return i
-        return None
+        #print(dir(filter(lambda n: n.name == name, self.list)))
+        return filter(lambda n: n.name == name, self.list)
+        #for i in self.list:
+            #if i.name == name:
+                #return i
+        #return None
         
     def earning(self, args):
         name = str(args[0] + ' ' + args[1])
