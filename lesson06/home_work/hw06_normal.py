@@ -1,3 +1,5 @@
+__author__ = "Андрей Петров"
+
 # Задание-1:
 # Реализуйте описаную ниже задачу, используя парадигмы ООП:
 # В школе есть Классы(5А, 7Б и т.д.), в которых учатся Ученики.
@@ -20,24 +22,61 @@ class School:
     def __init__(self):
         self.teachers = []
         self.classes = []
+        self.students = []
 
     def getClass(self, room_name):
         for i in self.classes:
             if i.name == room_name:
                 return i
         return None
+    
+    def get_students_by_fullname(self, fullname):
+        for i in self.students:
+            if i.full_name == fullname:
+                return i
+        return None
 
+    def get_students_by_room(self, room_name):
+        classroom = self.getClass(room_name)
+        if not classroom == None:
+            return classroom.listStudents
+        else:
+            return None
+        
+    def add_student(self, name, surname, class_room, parents):
+        student = Student(name, surname, class_room, parents)
+        classroom = self.add_class(class_room)
+        student.class_room = classroom
+        self.students.append(student)
+        classroom.students.append(student)        
+        return student
+    
+    def add_teacher(self, name, surname, teach_classes, courses):
+        teacher = Teacher(name, surname, teach_classes, courses)
+        self.teachers.append(teacher)
+        for teach_class in teach_classes:
+            classroom = self.add_class(teach_class)
+            classroom.teachers.append(teacher)
+        return teacher
+                
+    def add_class(self, class_room):
+        if self.getClass(class_room) == None:
+            class_obj = ClassRoom(class_room)
+            self.classes.append(class_obj)
+            return class_obj
+        else: 
+            return self.getClass(class_room)
+        
     @property
     def listClasses(self):
         return [i.name for i in self.classes]
-    
-    @staticmethod
-    def getStudents(room_name):
-        return school.getClass(room_name).listStudents
-    
-    @staticmethod
-    def getTeachers(room_name):
-        return school.getClass(room_name).listTeachers
+
+    def getTeachers(self, room_name):
+        classroom = self.getClass(room_name)
+        if not classroom == None:
+            return classroom.listTeachers
+        else:
+            return None
 
 
 class ClassRoom:
@@ -45,15 +84,14 @@ class ClassRoom:
         self.name = name
         self.students = []
         self.teachers = []
-        school.classes.append(self)
     
     @property
     def listStudents(self):
-        return [i.fullName for i in self.students]
+        return [i.full_name for i in self.students]
 
     @property
     def listTeachers(self):
-        return [i.fullName for i in self.teachers]
+        return [i.full_name for i in self.teachers]
 
     
 class People:
@@ -62,7 +100,7 @@ class People:
         self.surname = surname
     
     @property
-    def fullName(self):
+    def full_name(self):
         return self.name + ' ' + self.surname
 
         
@@ -70,14 +108,7 @@ class Student(People):
     def __init__(self, name, surname, class_room, parents):
         People.__init__(self, name, surname)
         self.parents = self.addParrent(parents)
-        self.class_room = self.addClass(class_room)
-        self.class_room.students.append(self)
-        
-    def addClass(self, class_room):
-        if school.getClass(class_room) == None:
-            return ClassRoom(class_room)
-        else: 
-            return school.getClass(class_room) 
+        self.class_room = class_room
 
     @staticmethod
     def addParrent(parents):
@@ -85,11 +116,12 @@ class Student(People):
     
     @property
     def listSubjects(self):
+        
         return [i.courses for i in self.class_room.teachers]
     
     @property
     def listParrents(self):
-        return [i.fullName for i in self.parents]
+        return [i.full_name for i in self.parents]
 
     
 class Teacher(People):
@@ -98,36 +130,26 @@ class Teacher(People):
         self.teach_classes = []
         self.courses = courses
         self.teach_classes = teach_classes
-        self.addClass(teach_classes)
-        school.teachers.append(self)
-        
-    def addClass(self, teach_classes):
-        for teach_class in teach_classes: 
-            if school.getClass(teach_class) == None:
-                ClassRoom(teach_class).teachers.append(self)
-            else: 
-                school.getClass(teach_class).teachers.append(self)
 
         
 if __name__ == "__main__":
-    school = School()
+    schooll = School()
+
+    schooll.add_student("Александр", "Иванов", "5 А", [("Андрей", "Иванов"), ("Алла", "Иванова")])
+    schooll.add_student("Петр", "Сидоров", "8 Б", [("Петр", "Сидоров"), ("Ирина", "Сидорова")])
+    schooll.add_student("Иван", "Петров", "4 В", [("Владимир", "Петров"), ("Татьяна", "Петрова")])
+    schooll.add_student("Петр", "Федоров", "8 Б", [("Алексей", "Федоров"), ("Ольга", "Федорова")])
+    schooll.add_student("Андрей", "Емельянов", "4 В", [("Семен", "Емельянов"), ("Елена", "Емельянова")])
+    schooll.add_student("Владимир", "Курьянов", "8 Б", [("Павел", "Курьянов"), ("Алина", "Курьянова")])
+    schooll.add_student("Константин", "Спиридонов", "4 В", [("Олег", "Спиридонов"), ("Карина", "Спиридонова")])
+
     
-    students = [Student("Александр", "Иванов", "5 А", [("Андрей", "Иванов"), ("Алла", "Иванова")]),
-                Student("Петр", "Сидоров", "8 Б", [("Петр", "Сидоров"), ("Ирина", "Сидорова")]),
-                Student("Иван", "Петров", "4 В", [("Владимир", "Петров"), ("Татьяна", "Петрова")]),
-                Student("Петр", "Федоров", "8 Б", [("Алексей", "Федоров"), ("Ольга", "Федорова")]),
-                Student("Андрей", "Емельянов", "4 В", [("Семен", "Емельянов"), ("Елена", "Емельянова")]),
-                Student("Владимир", "Курьянов", "8 Б", [("Павел", "Курьянов"), ("Алина", "Курьянова")]),
-                Student("Константин", "Спиридонов", "4 В", [("Олег", "Спиридонов"), ("Карина", "Спиридонова")]),
-                ]
+    schooll.add_teacher("Александра", "Иванова", ["5 А", "8 Б", "4 В"], "Математика")
+    schooll.add_teacher("Татьяна", "Семенова", ["5 А", "4 В"], "Биология")
+    schooll.add_teacher("Иван", "Тетерев", ["4 В"], "Труд")
     
-    teachers = [Teacher("Александра", "Иванова", ["5 А", "8 Б", "4 В"], "Математика"),
-                Teacher("Татьяна", "Семенова", ["5 А", "4 В"], "Биология"),
-                Teacher("Иван", "Тетерев", ["4 В"], "Труд"),
-                ]
-    
-    print('Список классов школы', school.listClasses)
-    print('Список студентов 8Б', school.getStudents("8 Б"))
-    print('Список предметов первого студента', students[0].listSubjects)
-    print('Фио родителей первого студента', students[0].listParrents)
-    print('Список учителей 5А класса', school.getTeachers("5 А"))
+    print('Список классов школы', schooll.listClasses)
+    print('Список студентов 8Б', schooll.get_students_by_room('8 Б'))
+    print('Список предметов первого студента', schooll.get_students_by_fullname('Александр Иванов').listSubjects)
+    print('Фио родителей первого студента', schooll.get_students_by_fullname('Александр Иванов').listParrents)
+    print('Список учителей 5А класса', schooll.getTeachers("5 А"))
