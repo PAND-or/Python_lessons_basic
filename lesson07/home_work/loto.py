@@ -63,28 +63,64 @@ import random
 
 class Game:
     def __init__(self, start, end):
-        self.computer_card = Cards(start, end)
-        self.user_card = Cards(start, end)
         self.barrels = Numbers(start, end)
-        self.gamer = UserGamer('Андрей', start, end, 15)
-        self.ai = UserGamer('ЦПУ', start, end, 15)
+        self.gamers = []
         
     def start(self):
 
-        print('Карточка компьютера \n', self.computer_card.print_str_card())
-        print('\n Карточка Игрока \n', self.user_card.print_str_card())
+
 
         while True:
-            if len(self.gamer.card.list) == 0:
-                print('Game OVER Победил игрок')
-            elif len(self.ai.card.list) == 0:
-                print('Game OVER Победил компьютер')
-
             number = self.barrels.get_numbers
             print('Число на боченке {}'.format(number))
-            if not self.gamer.do(number):
-                break
-            self.ai.do(number)
+            
+            for gamer in self.gamers:
+                if len(gamer.card.list) == 0:
+                    print('Game OVER Победил игрок {}'.format(gamer.name))
+                    break
+                    break
+
+                if not gamer.do(number):
+                    break
+
+class GameBuilder:
+    def __init__(self):
+        self._game = None
+        self.start = None
+        self.end = None
+        self.num = None
+        
+    def build(self):
+        return self._game
+    
+    def set_start_num(self, num):
+        self.start = num
+        return self
+   
+    def set_end_num(self, num):
+        self.end = num
+        return self
+    
+    def set_num_num(self, num):
+        self.num = num
+        return self
+    
+    def build_game(self):
+        self._game = Game(self.start, self.end)
+        return self
+        
+    def add_player(self, desc):
+        gamer = GamerFactory.get_gamer(desc, self.start, self.end, self.num)
+        self._game.gamers.append(gamer)
+        return self            
+
+class GamerFactory:
+    @staticmethod
+    def get_gamer(name, *args):
+        if name == "human":
+            return UserGamer(name, *args)
+        elif name == "computer":
+            return AiGamer(name, *args)
 
 
 class Numbers():
@@ -114,13 +150,18 @@ class AiGamer(Gamer):
         super().__init__(name, start, end, num_numbers)
 
     def do(self, number):
+        print('Карточка игрока: {}'.format(self.name))
         self.card.delete_numbers(number)
+        print(self.card.print_str_card())
+        return True
     
 class UserGamer(Gamer):
     def __init__(self, name, start, end, num_numbers):
         super().__init__(name, start, end, num_numbers)
     
     def do(self, number):
+        print('Карточка игрока: {}'.format(self.name))
+        print(self.card.print_str_card())
         inp = input('Зачеркнуть или продолжить?: Y / N: ')
         if inp == "Y":
             if self.card.delete_numbers(number):
@@ -179,8 +220,12 @@ class Cards(Numbers):
 
     
 if __name__ == "__main__":
-    
-    game = Game(1, 91)
-    game.start()
-    
-    
+    GameBuilder()\
+        .set_start_num(1)\
+        .set_end_num(91)\
+        .set_num_num(15)\
+        .build_game()\
+        .add_player("human")\
+        .add_player("computer")\
+        .build()\
+        .start()
