@@ -199,7 +199,6 @@ def save_data(data):
         date DATE, \
         temperatire INTEGER, \
         weather_id INTEGER)".format(data["name"])
-    print(query)
     c.execute(query)
     query_2 = "INSERT OR REPLACE INTO '{}' VALUES (?, ?, ?, ?, ?)".format(data["name"])
     c.executemany(query_2, weather)
@@ -211,7 +210,7 @@ def print_from_db(data):
     connect = sqlite3.connect("cities.db")
     c = connect.cursor()
     c.execute("select * from '{}';".format(data['name']))
-    print(cursor.fetchone())
+    print(c.fetchone())
     
 if __name__ == "__main__":  
     apid = get_appid()
