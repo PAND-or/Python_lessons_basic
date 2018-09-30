@@ -66,35 +66,25 @@ class Game:
         self.computer_card = Cards(start, end)
         self.user_card = Cards(start, end)
         self.barrels = Numbers(start, end)
+        self.gamer = UserGamer('Андрей', start, end, 15)
+        self.ai = UserGamer('ЦПУ', start, end, 15)
         
     def start(self):
+
         print('Карточка компьютера \n', self.computer_card.print_str_card())
         print('\n Карточка Игрока \n', self.user_card.print_str_card())
 
         while True:
-            if len(self.user_card.list) == 0:
+            if len(self.gamer.card.list) == 0:
                 print('Game OVER Победил игрок')
-            elif len(self.computer_card.list) == 0:
+            elif len(self.ai.card.list) == 0:
                 print('Game OVER Победил компьютер')
 
             number = self.barrels.get_numbers
             print('Число на боченке {}'.format(number))
-
-            inp = input('Зачеркнуть или продолжить?: Y / N: ')
-            if inp == "Y":
-                if self.user_card.delete_numbers(number):
-                    print('Такой номер есть в карточке!')
-                    self.computer_card.delete_numbers(number)
-                else:
-                    print('Game OVER Такой номер есть в карточке!')
-                    break
-            else:
-                if self.user_card.delete_numbers(number):
-                    print('Game OVER Такой номер есть в карточке!')
-                    break
-                else:
-                    print('Верно! Такого номера нет в карточке!')
-                    self.computer_card.delete_numbers(number)
+            if not self.gamer.do(number):
+                break
+            self.ai.do(number)
 
 
 class Numbers():
@@ -114,13 +104,45 @@ class Numbers():
         else:
             return False
             
-        
+class Gamer():
+    def __init__(self, name, start, end, num_numbers):
+        self.card = Cards(start, end, num_numbers)
+        self.name = name
 
+class AiGamer(Gamer):
+    def __init__(self, name, start, end, num_numbers):
+        super().__init__(name, start, end, num_numbers)
+
+    def do(self, number):
+        self.card.delete_numbers(number)
+    
+class UserGamer(Gamer):
+    def __init__(self, name, start, end, num_numbers):
+        super().__init__(name, start, end, num_numbers)
+    
+    def do(self, number):
+        inp = input('Зачеркнуть или продолжить?: Y / N: ')
+        if inp == "Y":
+            if self.card.delete_numbers(number):
+                print('Такой номер есть в карточке!')
+                return True
+            else:
+                print('Game OVER Такой номер есть в карточке!')
+                return False
+        else:
+            if self.card.delete_numbers(number):
+                print('Game OVER Такой номер есть в карточке!')
+                return False
+            else:
+                return True
+                print('Верно! Такого номера нет в карточке!')
+                #self.computer_card.delete_numbers(number)
+        
         
 class Cards(Numbers):
-    def __init__(self, start, end):
+    def __init__(self, start, end, num_numbers):
         self.numbers = Numbers(start, end)
-        self.list = random.sample(self.numbers.list, 15)
+        self.list = random.sample(self.numbers.list, num_numbers)
         self.lines = self.create_lines()
         
     def create_lines(self):
