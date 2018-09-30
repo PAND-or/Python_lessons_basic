@@ -199,7 +199,7 @@ def save_data(data):
         date DATE, \
         temperatire INTEGER, \
         weather_id INTEGER)".format(data["name"])
-
+    print(query)
     c.execute(query)
     query_2 = "INSERT OR REPLACE INTO '{}' VALUES (?, ?, ?, ?, ?)".format(data["name"])
     c.executemany(query_2, weather)
@@ -208,7 +208,9 @@ def save_data(data):
     connect.close()
 
 def print_from_db(data):
-    cursor.execute('select * from '{}';'.format(city['name']))
+    connect = sqlite3.connect("cities3.db")
+    c = connect.cursor()
+    c.execute("select * from '{}';".format(data['name']))
     print(cursor.fetchone())
     
 if __name__ == "__main__":  
@@ -217,4 +219,4 @@ if __name__ == "__main__":
     city = get_city_by_name()
     data = get_city_data(city, apid)
     save_data(data)
-    print_from_db(city, apid)
+    print_from_db(data)
