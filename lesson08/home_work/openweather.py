@@ -1,3 +1,10 @@
+__author__ = "Андрей Петров"
+import os
+import json
+import urllib.request as request
+import gzip
+import shutil
+import sqlite3
 
 """ 
 == OpenWeatherMap ==
@@ -29,7 +36,6 @@ OpenWeatherMap — онлайн-сервис, который предостав�
         
         Ключ имеет смысл сохранить в локальный файл, например, "app.id"
 
-        
 == Получение списка городов ==
     Список городов может быть получен по ссылке:
     http://bulk.openweathermap.org/sample/city.list.json.gz
@@ -43,8 +49,34 @@ OpenWeatherMap — онлайн-сервис, который предостав�
     Список достаточно большой. Представляет собой JSON-строки:
 {"_id":707860,"name":"Hurzuf","country":"UA","coord":{"lon":34.283333,"lat":44.549999}}
 {"_id":519188,"name":"Novinki","country":"RU","coord":{"lon":37.666668,"lat":55.683334}}
-    
-    
+"""
+APIURL = 'http://api.openweathermap.org/data/2.5/'
+URL_CITY_NAMES = 'http://bulk.openweathermap.org/sample/city.list.json.gz'
+CITY_FILE_NAME = 'city.list.json'    
+
+def get_appid():
+    with open('app.id', encoding='UTF-8') as f:
+        return f.readline()
+
+def get_city_list(file, url):
+    if not os.path.isfile(file):
+        download_city_list(file, url)
+        
+    with open(file, encoding='UTF-8') as f:
+        cities_list = json.load(f)
+    return cities_list
+
+def download_city_list(url, file):
+    request.urlretrieve(url, file + '.gz')
+    with gzip.open(file + '.gz', 'rb') as f_in:
+        with open(file, 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+
+
+            
+
+
+"""
 == Получение погоды ==
     На основе списка городов можно делать запрос к сервису по id города. И тут как раз понадобится APPID.
         By city ID
@@ -66,8 +98,43 @@ OpenWeatherMap — онлайн-сервис, который предостав�
     "rain":{"3h":0.015},"clouds":{"all":76},"dt":1465156452,
     "sys":{"type":3,"id":57233,"message":0.0024,"country":"RU","sunrise":1465087473,
     "sunset":1465149961},"id":520068,"name":"Noginsk","cod":200}    
+"""
 
 
+
+def get_city_by_name():
+    name = input('Название города на английском: ')
+    searches = []
+    for city in cities_list:
+        if city['name'].find(name) >= 0:
+            searches.append(city)
+            
+    if len(searches) > 1:
+        print('Таких городов несколько: ')
+        for i, city in enumerate(searches):
+            print('#{}. Страна: {} Город: ({})'.format(i, city['country'], city['name']))
+        inp = input('Укажите порядковый номер или "all" для всех: ')
+        if inp == 'all':
+            return searches
+        else:
+            return searches[int(inp)]
+    elif len(searches) == 1:
+        return searches[0]
+    else:
+        return 'Город не найден.'
+
+def get_city_data(cities, appid, metric='y'):
+    url = APIURL
+    if isinstance(cities, list):
+        clist =  ','.join(format(n['id']) for n in cities)
+        url += 'group?id={}&appid={}'.format(clist, appid)
+    else:
+        url += 'weather?id={}&appid={}'.format(cities['id'], appid)
+    if(metric == 'y'):
+        url += '&units=metric'
+    return json.load(request.urlopen(url))
+
+"""
 == Сохранение данных в локальную БД ==    
 Программа должна позволять:
 1. Создавать файл базы данных SQLite со следующей структурой данных
@@ -122,4 +189,32 @@ OpenWeatherMap — онлайн-сервис, который предостав�
         ...
 
 """
+def save_data(data):
+    weather = [(data["id"], data["name"], data["dt"], data["main"]["temp"], data["weather"][0]["id"])]
+    connect = sqlite3.connect("cities.db")
+    c = connect.cursor()
+    query = "CREATE TABLE IF NOT EXISTS '{}' (\
+        city_id INTEGER PRIMARY KEY, \
+        city_name VARCHAR(255), \
+        date DATE, \
+        temperatire INTEGER, \
+        weather_id INTEGER)".format(data["name"])
 
+    c.execute(query)
+    query_2 = "INSERT OR REPLACE INTO '{}' VALUES (?, ?, ?, ?, ?)".format(data["name"])
+    c.executemany(query_2, weather)
+    connect.commit()
+    c.close()
+    connect.close()
+
+def print_from_db(data):
+    cursor.execute('select * from '{}';'.format(city['name']))
+    print(cursor.fetchone())
+    
+if __name__ == "__main__":  
+    apid = get_appid()
+    cities_list = get_city_list(CITY_FILE_NAME, URL_CITY_NAMES) 
+    city = get_city_by_name()
+    data = get_city_data(city, apid)
+    save_data(data)
+    print_from_db(city, apid)
