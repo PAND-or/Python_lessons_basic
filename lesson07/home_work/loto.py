@@ -67,21 +67,25 @@ class Game:
         self.gamers = []
         
     def start(self):
-
-
-
-        while True:
+        status = True
+        while status:
             number = self.barrels.get_numbers
             print('Число на боченке {}'.format(number))
             
             for gamer in self.gamers:
                 if len(gamer.card.list) == 0:
                     print('Game OVER Победил игрок {}'.format(gamer.name))
+                    status = False
                     break
-                    break
-
                 if not gamer.do(number):
+                    print('Из игры вылетает игрок {}'.format(gamer.name))
+                    self.kick_gamer(gamer)
+                    status = False
                     break
+                    
+    def kick_gamer(self, gamer):
+        if gamer in self.gamers:
+            self.gamers.remove(gamer)    
 
 class GameBuilder:
     def __init__(self):
@@ -122,29 +126,13 @@ class GamerFactory:
         elif name == "computer":
             return AiGamer(name, *args)
 
-
-class Numbers():
-    def __init__(self, start, end):
-        self.list = [i for i in range(start, end)]
- 
-    @property
-    def get_numbers(self):
-        number = random.choice(self.list)
-        self.delete_numbers(number)
-        return number
-    
-    def delete_numbers(self, number):
-        if number in self.list:
-            self.list.remove(number)
-            return True
-        else:
-            return False
-            
+        
 class Gamer():
     def __init__(self, name, start, end, num_numbers):
         self.card = Cards(start, end, num_numbers)
         self.name = name
 
+        
 class AiGamer(Gamer):
     def __init__(self, name, start, end, num_numbers):
         super().__init__(name, start, end, num_numbers)
@@ -154,7 +142,8 @@ class AiGamer(Gamer):
         self.card.delete_numbers(number)
         print(self.card.print_str_card())
         return True
-    
+
+
 class UserGamer(Gamer):
     def __init__(self, name, start, end, num_numbers):
         super().__init__(name, start, end, num_numbers)
@@ -177,13 +166,32 @@ class UserGamer(Gamer):
             else:
                 return True
                 print('Верно! Такого номера нет в карточке!')
-                #self.computer_card.delete_numbers(number)
+
+
+                
+class Numbers():
+    def __init__(self, start, end):
+        self.list = [i for i in range(start, end)]
+ 
+    @property
+    def get_numbers(self):
+        number = random.choice(self.list)
+        self.delete_numbers(number)
+        return number
+    
+    def delete_numbers(self, number):
+        if number in self.list:
+            self.list.remove(number)
+            return True
+        else:
+            return False
         
         
 class Cards(Numbers):
+
     def __init__(self, start, end, num_numbers):
-        self.numbers = Numbers(start, end)
-        self.list = random.sample(self.numbers.list, num_numbers)
+        self.free_numbers = Numbers(start, end)
+        self.list = random.sample(self.free_numbers.list, num_numbers)
         self.lines = self.create_lines()
         
     def create_lines(self):
@@ -195,21 +203,23 @@ class Cards(Numbers):
         for line in lines:
             line.sort()
         return lines
-    
+
+    def mark_numbers(self, number):
+        for line in self.lines:
+            if number in line:
+                index = line.index(number)
+                line[index] = '-'
+
+    def delete_numbers(self, number):
+        if number in self.list:
+            self.list.remove(number)
+            self.mark_numbers(number)
+            return True
+        else:
+            return False  
+                
     def str_lines(self, line):
-        str_line = ''
-        for i, number in enumerate(line):
-            if (i == 0) & (number < 10):
-                str_line += str(number)
-            elif(i == 0) & (number > 10):  
-                str_line += '   ' + str(number)
-            elif len(str_line) > 25:
-                str_line += ' ' + str(number)
-            elif (line[i] - line[i-1]) > 10:
-                str_line += '   ' + str(number)
-            else:
-                str_line += ' ' + str(number)
-        return str_line
+        return "".join("{:>4}".format(n) for n in line)
     
     def print_str_card(self):
         str_lines = []
