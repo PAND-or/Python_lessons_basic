@@ -60,9 +60,46 @@
 
 import random
 
+
+class Game:
+    def __init__(self, start, end):
+        self.computer_card = Cards(start, end)
+        self.user_card = Cards(start, end)
+        self.barrels = Numbers(start, end)
+        
+    def start(self):
+        print('Карточка компьютера \n', self.computer_card.print_str_card())
+        print('\n Карточка Игрока \n', self.user_card.print_str_card())
+
+        while True:
+            if len(self.user_card.list) == 0:
+                print('Game OVER Победил игрок')
+            elif len(self.computer_card.list) == 0:
+                print('Game OVER Победил компьютер')
+
+            number = self.barrels.get_numbers
+            print('Число на боченке {}'.format(number))
+
+            inp = input('Зачеркнуть или продолжить?: Y / N: ')
+            if inp == "Y":
+                if self.user_card.delete_numbers(number):
+                    print('Такой номер есть в карточке!')
+                    self.computer_card.delete_numbers(number)
+                else:
+                    print('Game OVER Такой номер есть в карточке!')
+                    break
+            else:
+                if self.user_card.delete_numbers(number):
+                    print('Game OVER Такой номер есть в карточке!')
+                    break
+                else:
+                    print('Верно! Такого номера нет в карточке!')
+                    self.computer_card.delete_numbers(number)
+
+
 class Numbers():
-    def __init__(self):
-        self.list = [i for i in range(1, 91)]
+    def __init__(self, start, end):
+        self.list = [i for i in range(start, end)]
  
     @property
     def get_numbers(self):
@@ -81,8 +118,8 @@ class Numbers():
 
         
 class Cards(Numbers):
-    def __init__(self):
-        self.numbers = Numbers()
+    def __init__(self, start, end):
+        self.numbers = Numbers(start, end)
         self.list = random.sample(self.numbers.list, 15)
         self.lines = self.create_lines()
         
@@ -118,38 +155,10 @@ class Cards(Numbers):
         strcard = str('--------------------------\n{}\n{}\n{}\n--------------------------\n').format(str_lines[0], str_lines[1], str_lines[2])
         return strcard
 
-
+    
 if __name__ == "__main__":
-
-    computer_card = Cards()
-    user_card = Cards()
-    barrels = Numbers()
-
-    print('Карточка компьютера \n', computer_card.print_str_card())
-    print('\n Карточка Игрока \n', user_card.print_str_card())
-
-    while True:
-        if len(user_card.list) == 0:
-            print('Game OVER Победил игрок')
-        elif len(computer_card.list) == 0:
-            print('Game OVER Победил компьютер')
-
-        number = barrels.get_numbers
-        print('Число на боченке {}'.format(number))
-
-        inp = input('Зачеркнуть или продолжить?: Y / N: ')
-        if inp == "Y":
-            if user_card.delete_numbers(number):
-                print('Такой номер есть в карточке!')
-                computer_card.delete_numbers(number)
-            else:
-                print('Game OVER Такой номер есть в карточке!')
-                break
-        else:
-            if user_card.delete_numbers(number):
-                print('Game OVER Такой номер есть в карточке!')
-                break
-            else:
-                print('Верно! Такого номера нет в карточке!')
-                computer_card.delete_numbers(number)
-        
+    
+    game = Game(1, 91)
+    game.start()
+    
+    
