@@ -123,16 +123,37 @@ def get_city_by_name():
     else:
         return 'Город не найден.'
 
+def get_cites_by_country():
+    name = input('Код страны на английском: ')
+    searches = []   
+    for city in cities_list:
+        if city['country'].find(name) >= 0:
+            searches.append(city)
+    return searches
+            
 def get_city_data(cities, appid, metric='y'):
-    url = APIURL
     if isinstance(cities, list):
-        clist =  ','.join(format(n['id']) for n in cities)
-        url += 'group?id={}&appid={}'.format(clist, appid)
+        j = 0
+        res = {'cnt': 0, 'list': []}
+        while j < len(cities)//10+1: #Формирование запроса по 10 городов
+            k = 10*j
+            z = 10*j+10
+            url = APIURL
+            clist =  ','.join(format(n['id']) for n in cities[k:z])
+            if (clist != None) & (len(clist) > 1):
+                url += 'group?id={}&appid={}'.format(clist, appid)
+                jes_res = json.load(request.urlopen(url))
+                res['list'].extend(jes_res['list']) #объединение ответа
+                res['cnt'] += jes_res['cnt']
+            j +=1
+        return res
     else:
+        url = APIURL
         url += 'weather?id={}&appid={}'.format(cities['id'], appid)
-    if(metric == 'y'):
-        url += '&units=metric'
-    return json.load(request.urlopen(url))
+        if(metric == 'y'):
+            url += '&units=metric'
+            
+        return json.load(request.urlopen(url))
 
 """
 == Сохранение данных в локальную БД ==    
@@ -190,7 +211,8 @@ def get_city_data(cities, appid, metric='y'):
 
 """
 def save_data(data):
-    weather = [(data["id"], data["name"], data["dt"], data["main"]["temp"], data["weather"][0]["id"])]
+
+    
     connect = sqlite3.connect("cities6.db")
     c = connect.cursor()
     query = "CREATE TABLE IF NOT EXISTS 'weather' (\
@@ -200,8 +222,16 @@ def save_data(data):
         temperatire INTEGER, \
         weather_id INTEGER)"
     c.execute(query)
+    
     query_2 = "INSERT OR REPLACE INTO 'weather' VALUES (?, ?, ?, ?, ?)"
-    c.executemany(query_2, weather)
+    if 'list' in data:
+        for d in data['list']:
+            if d['id']:
+                weather = [(d["id"], d["name"], d["dt"], d["main"]["temp"], d["weather"][0]["id"])]
+                c.executemany(query_2, weather)
+    else:
+        weather = [(data["id"], data["name"], data["dt"], data["main"]["temp"], data["weather"][0]["id"])]
+        c.executemany(query_2, weather)
     connect.commit()
     c.close()
     connect.close()
@@ -209,13 +239,20 @@ def save_data(data):
 def get_from_db(data):
     connect = sqlite3.connect("cities6.db")
     c = connect.cursor()
-    c.execute("select * from 'weather' where city_id ='{}';".format(data['id']))
-    return c.fetchone()
+    if 'list' in data:     
+        where =  ','.join(format(n['id']) for n in data['list'])
+        #print(where)
+        c.execute("SELECT * FROM 'weather' WHERE city_id IN ({});".format(where))
+        return c.fetchall()
+    else:
+        c.execute("SELECT * FROM 'weather' WHERE city_id ='{}';".format(data['id']))
+        return c.fetchone()
     
 if __name__ == "__main__":  
     apid = get_appid()
     cities_list = get_city_list(CITY_FILE_NAME, URL_CITY_NAMES) 
     city = get_city_by_name()
+    #city = get_cites_by_country() #так и не смог спарсить все города, после 2000 городов, получаю бан от сервера
     data = get_city_data(city, apid)
     save_data(data)
     print(get_from_db(data))
