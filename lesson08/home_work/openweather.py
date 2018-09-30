@@ -191,26 +191,26 @@ def get_city_data(cities, appid, metric='y'):
 """
 def save_data(data):
     weather = [(data["id"], data["name"], data["dt"], data["main"]["temp"], data["weather"][0]["id"])]
-    connect = sqlite3.connect("cities.db")
+    connect = sqlite3.connect("cities6.db")
     c = connect.cursor()
-    query = "CREATE TABLE IF NOT EXISTS '{}' (\
+    query = "CREATE TABLE IF NOT EXISTS 'weather' (\
         city_id INTEGER PRIMARY KEY, \
         city_name VARCHAR(255), \
         date DATE, \
         temperatire INTEGER, \
-        weather_id INTEGER)".format(data["name"])
+        weather_id INTEGER)"
     c.execute(query)
-    query_2 = "INSERT OR REPLACE INTO '{}' VALUES (?, ?, ?, ?, ?)".format(data["name"])
+    query_2 = "INSERT OR REPLACE INTO 'weather' VALUES (?, ?, ?, ?, ?)"
     c.executemany(query_2, weather)
     connect.commit()
     c.close()
     connect.close()
 
-def print_from_db(data):
-    connect = sqlite3.connect("cities.db")
+def get_from_db(data):
+    connect = sqlite3.connect("cities6.db")
     c = connect.cursor()
-    c.execute("select * from '{}';".format(data['name']))
-    print(c.fetchone())
+    c.execute("select * from 'weather' where city_id ='{}';".format(data['id']))
+    return c.fetchone()
     
 if __name__ == "__main__":  
     apid = get_appid()
@@ -218,4 +218,4 @@ if __name__ == "__main__":
     city = get_city_by_name()
     data = get_city_data(city, apid)
     save_data(data)
-    print_from_db(data)
+    print(get_from_db(data))
