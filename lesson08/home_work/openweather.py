@@ -208,7 +208,7 @@ def save_data(data):
     connect.close()
 
 def print_from_db(data):
-    connect = sqlite3.connect("cities3.db")
+    connect = sqlite3.connect("cities.db")
     c = connect.cursor()
     c.execute("select * from '{}';".format(data['name']))
     print(cursor.fetchone())
